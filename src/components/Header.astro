@@ -1,0 +1,47 @@
+---
+import { getPublishedContent } from "../lib/content";
+import { site } from "../data/site";
+
+interface Props {
+  contentLang?: "zh" | "en";
+  translations?: Partial<Record<"zh" | "en", string>>;
+}
+
+const { contentLang, translations = {} } = Astro.props;
+const content = await getPublishedContent();
+const hasProjects = content.projects.length > 0;
+const hasWriting = content.writing.length > 0;
+const hasVideos = content.videos.length > 0;
+---
+
+<header class="site-header">
+  <a class="wordmark" href="/" aria-label="Home">
+    <span class="wordmark-mark">MS</span>
+    <span>{site.handle}</span>
+  </a>
+
+  <nav class="site-nav" aria-label="Primary navigation">
+    {hasProjects && <a href="/#code"><span data-copy="zh">代码</span><span data-copy="en">Code</span></a>}
+    {hasWriting && <a href="/#writing"><span data-copy="zh">写作</span><span data-copy="en">Writing</span></a>}
+    {hasVideos && <a href="/#video"><span data-copy="zh">视频</span><span data-copy="en">Video</span></a>}
+    <a href="/#about"><span data-copy="zh">关于</span><span data-copy="en">About</span></a>
+  </nav>
+
+  <div class="site-controls">
+    <button
+      class="control-button"
+      type="button"
+      data-language-toggle
+      data-content-lang={contentLang}
+      data-translation-zh={translations.zh}
+      data-translation-en={translations.en}
+      aria-label="Switch language"
+    >
+      <span data-copy="zh">EN</span><span data-copy="en">中</span>
+    </button>
+    <button class="control-button theme-button" type="button" data-theme-toggle aria-label="Switch color theme">
+      <span aria-hidden="true" data-theme-icon="light">◐</span>
+      <span aria-hidden="true" data-theme-icon="dark">◑</span>
+    </button>
+  </div>
+</header>

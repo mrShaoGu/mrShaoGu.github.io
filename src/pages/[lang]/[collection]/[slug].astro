@@ -1,0 +1,78 @@
+---
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import {
+  dateLabel,
+  entryPath,
+  routeSegment,
+  type ContentKind,
+  type Locale,
+  type SiteEntry,
+} from "../../../lib/content";
+
+export async function getStaticPaths() {
+  const collections = await Promise.all([
+    getCollection("projects", ({ data }) => !data.draft),
+    getCollection("writing", ({ data }) => !data.draft),
+    getCollection("videos", ({ data }) => !data.draft),
+  ]);
+  const kinds: ContentKind[] = ["projects", "writing", "videos"];
+  const all = collections.flatMap((entries, index) => entries.map((entry) => ({ entry, kind: kinds[index] })));
+
+  return all.map(({ entry, kind }) => {
+    const translations = Object.fromEntries(
+      all
+        .filter((candidate) => candidate.kind === kind && candidate.entry.data.translationKey === entry.data.translationKey)
+        .map((candidate) => [candidate.entry.data.lang, entryPath(kind, candidate.entry as SiteEntry)]),
+    );
+    return {
+      params: { lang: entry.data.lang, collection: routeSegment[kind], slug: entry.data.slug },
+      props: { entry, kind, translations },
+    };
+  });
+}
+
+interface Props {
+  entry: CollectionEntry<ContentKind>;
+  kind: ContentKind;
+  translations: Partial<Record<Locale, string>>;
+}
+
+const { entry, kind, translations } = Astro.props as Props;
+const { Content } = await render(entry);
+const locale = entry.data.lang as Locale;
+const projectData = kind === "projects" ? (entry as CollectionEntry<"projects">).data : null;
+const videoData = kind === "videos" ? (entry as CollectionEntry<"videos">).data : null;
+const kindLabels = {
+  projects: { zh: "代码项目", en: "Code project" },
+  writing: { zh: "写作", en: "Writing" },
+  videos: { zh: "视频", en: "Video" },
+};
+---
+
+<BaseLayout
+  title={entry.data.title}
+  description={entry.data.summary}
+  contentLang={locale}
+  translations={translations}
+  image={videoData?.cover}
+>
+  <article class="article-shell">
+    <a class="article-back" href="/">← <span data-copy="zh">返回首页</span><span data-copy="en">Back home</span></a>
+    <header class="article-header">
+      <div class="content-meta">
+        <span>{kindLabels[kind][locale]}</span>
+        <span>{dateLabel(entry.data.publishedAt, locale)}</span>
+        {entry.data.lang === "zh" ? <span>中文</span> : <span>English</span>}
+      </div>
+      <h1>{entry.data.title}</h1>
+      <p>{entry.data.summary}</p>
+      <div class="external-actions">
+        {projectData && <a href={projectData.repo} target="_blank" rel="noreferrer">GitHub ↗</a>}
+        {projectData?.demo && <a href={projectData.demo} target="_blank" rel="noreferrer">Demo ↗</a>}
+        {videoData && <a href={videoData.bilibiliUrl} target="_blank" rel="noreferrer">Bilibili ↗</a>}
+      </div>
+    </header>
+    <div class="prose"><Content /></div>
+  </article>
+</BaseLayout>

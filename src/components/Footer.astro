@@ -1,0 +1,12 @@
+---
+import { site } from "../data/site";
+---
+
+<footer class="site-footer">
+  <span>© {new Date().getFullYear()} {site.handle}</span>
+  <div>
+    <a href={site.github} target="_blank" rel="noreferrer">GitHub ↗</a>
+    {site.bilibili && <a href={site.bilibili} target="_blank" rel="noreferrer">Bilibili ↗</a>}
+    {site.email && <a href={`mailto:${site.email}`}>Email ↗</a>}
+  </div>
+</footer>

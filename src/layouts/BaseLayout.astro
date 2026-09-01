@@ -1,0 +1,68 @@
+---
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import Fox from "../components/Fox.astro";
+import "../styles/global.css";
+import { site } from "../data/site";
+
+interface Props {
+  title?: string;
+  description?: string;
+  contentLang?: "zh" | "en";
+  translations?: Partial<Record<"zh" | "en", string>>;
+  image?: string;
+}
+
+const {
+  title = site.handle,
+  description = site.description.zh,
+  contentLang,
+  translations = {},
+  image,
+} = Astro.props;
+const pageTitle = title === site.handle ? title : `${title} · ${site.handle}`;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const socialImage = image ? new URL(image, Astro.site) : new URL("/og.png", Astro.site);
+---
+
+<!doctype html>
+<html lang="zh-CN" data-lang="zh" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <title>{pageTitle}</title>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={socialImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={socialImage} />
+    <script is:inline>
+      (() => {
+        const savedTheme = localStorage.getItem("site-theme");
+        const savedLang = localStorage.getItem("site-language");
+        const theme = savedTheme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        const lang = savedLang || (navigator.language.toLowerCase().startsWith("zh") ? "zh" : "en");
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.dataset.lang = lang;
+        document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
+      })();
+    </script>
+  </head>
+  <body>
+    <div class="site-shell">
+      <Header contentLang={contentLang} translations={translations} />
+      <main><slot /></main>
+      <Footer />
+    </div>
+    <Fox />
+    <script is:inline src="/site.js"></script>
+  </body>
+</html>

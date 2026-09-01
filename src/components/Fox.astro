@@ -1,0 +1,65 @@
+<div class="fox-reserve" aria-hidden="true"></div>
+<button class="fox" type="button" aria-label="A wandering red fox" data-fox>
+  <img src="/fox/clean-pose-0.png" alt="" width="160" height="160" data-fox-image />
+</button>
+
+<script>
+  const fox = document.querySelector<HTMLElement>("[data-fox]");
+  const image = document.querySelector<HTMLImageElement>("[data-fox-image]");
+  if (fox && image) {
+    const frames = Array.from({ length: 8 }, (_, index) => `/fox/move-frame-${index}.png`);
+    let x = Math.max(18, window.innerWidth * 0.08);
+    let direction = 1;
+    let moving = false;
+
+    const place = () => {
+      fox.style.setProperty("--fox-x", `${x}px`);
+      fox.style.setProperty("--fox-face", String(direction));
+    };
+
+    const hop = async (target: number) => {
+      if (moving || document.hidden) return;
+      moving = true;
+      direction = target >= x ? 1 : -1;
+      const start = x;
+      const duration = 1350;
+      const began = performance.now();
+
+      await new Promise<void>((resolve) => {
+        const animate = (now: number) => {
+          const progress = Math.min(1, (now - began) / duration);
+          const eased = 1 - Math.pow(1 - progress, 3);
+          x = start + (target - start) * eased;
+          const frame = Math.min(7, Math.floor(progress * 8));
+          image.src = frames[frame];
+          fox.style.setProperty("--fox-hop", `${Math.sin(progress * Math.PI) * -32}px`);
+          place();
+          if (progress < 1) requestAnimationFrame(animate);
+          else resolve();
+        };
+        requestAnimationFrame(animate);
+      });
+
+      image.src = "/fox/clean-pose-0.png";
+      fox.style.setProperty("--fox-hop", "0px");
+      moving = false;
+    };
+
+    const wander = () => {
+      const maximum = Math.max(18, window.innerWidth - fox.offsetWidth - 18);
+      hop(18 + Math.random() * (maximum - 18));
+      window.setTimeout(wander, 6500 + Math.random() * 7000);
+    };
+
+    fox.addEventListener("click", () => {
+      const maximum = Math.max(18, window.innerWidth - fox.offsetWidth - 18);
+      hop(Math.min(maximum, Math.max(18, x + direction * 120)));
+    });
+    window.addEventListener("resize", () => {
+      x = Math.min(x, Math.max(18, window.innerWidth - fox.offsetWidth - 18));
+      place();
+    });
+    place();
+    window.setTimeout(wander, 2400);
+  }
+</script>
