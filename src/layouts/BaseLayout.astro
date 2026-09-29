@@ -1,7 +1,6 @@
 ---
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
-import Fox from "../components/Fox.astro";
 import "../styles/global.css";
 import { site } from "../data/site";
 
@@ -44,12 +43,12 @@ const socialImage = image ? new URL(image, Astro.site) : new URL("/og.png", Astr
     <meta name="twitter:title" content={pageTitle} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={socialImage} />
-    <script is:inline>
+    <script is:inline define:vars={{ contentLang }}>
       (() => {
         const savedTheme = localStorage.getItem("site-theme");
         const savedLang = localStorage.getItem("site-language");
         const theme = savedTheme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-        const lang = savedLang || (navigator.language.toLowerCase().startsWith("zh") ? "zh" : "en");
+        const lang = contentLang || savedLang || (navigator.language.toLowerCase().startsWith("zh") ? "zh" : "en");
         document.documentElement.dataset.theme = theme;
         document.documentElement.dataset.lang = lang;
         document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
@@ -62,7 +61,6 @@ const socialImage = image ? new URL(image, Astro.site) : new URL("/og.png", Astr
       <main><slot /></main>
       <Footer />
     </div>
-    <Fox />
     <script is:inline src="/site.js"></script>
   </body>
 </html>
