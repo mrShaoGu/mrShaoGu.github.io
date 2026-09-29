@@ -5,13 +5,20 @@
   "type": "module",
   "scripts": {
     "dev": "ASTRO_TELEMETRY_DISABLED=1 astro dev",
-    "build": "ASTRO_TELEMETRY_DISABLED=1 astro check && ASTRO_TELEMETRY_DISABLED=1 astro build",
+    "build": "npm run design:lint && ASTRO_TELEMETRY_DISABLED=1 astro check && ASTRO_TELEMETRY_DISABLED=1 astro build",
     "preview": "ASTRO_TELEMETRY_DISABLED=1 astro preview",
-    "check": "ASTRO_TELEMETRY_DISABLED=1 astro check"
+    "check": "ASTRO_TELEMETRY_DISABLED=1 astro check",
+    "design:lint": "designmd lint DESIGN.md"
   },
   "dependencies": {
     "@astrojs/check": "0.9.6",
+    "@fontsource-variable/newsreader": "^5.3.0",
+    "@fontsource-variable/public-sans": "^5.3.0",
+    "@fontsource-variable/space-grotesk": "^5.3.0",
     "astro": "7.2.10",
     "typescript": "5.9.3"
+  },
+  "devDependencies": {
+    "@google/design.md": "^0.4.0"
   }
 }

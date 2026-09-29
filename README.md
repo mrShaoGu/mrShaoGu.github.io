@@ -9,7 +9,16 @@
 - `src/content/videos/`：Bilibili 视频索引。
 - `src/data/site.ts`：个人介绍与外部链接。
 - `templates/`：新增内容时复制使用的模板。
+- `DESIGN.md`：字体、颜色、间距与组件角色的设计令牌和使用原则。
 
 没有真实公开内容的板块不会出现在首页或导航中。网站始终提供中英文界面和明暗主题；正文翻译可选。
 
 详细操作见 [CONTENT_GUIDE.md](./CONTENT_GUIDE.md)。
+
+## 设计检查
+
+字体与视觉规则采用 Google Labs 的 `DESIGN.md` 格式，并在每次构建前自动校验：
+
+```sh
+npm run design:lint
+```
